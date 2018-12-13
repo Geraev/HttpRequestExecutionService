@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
+	"log"
 	"net/http"
 )
 
@@ -14,20 +15,17 @@ func GenerateID() string {
 
 type Controller struct{}
 
-func (c Controller) QueueHandler(out chan<- DaoRequest/*storage requestRepo*/) http.HandlerFunc {
+func (c Controller) QueueHandler(out chan<- DaoRequest) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var newRequest DaoRequest
 		if err := json.NewDecoder(r.Body).Decode(&newRequest); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		newRequest.ID = GenerateID()
-
 		out <- newRequest
-
-		w.Header().Set("Content-Type","text/plain")
-
+		w.Header().Set("Content-Type", "text/plain")
 		//noinspection GoUnhandledErrorResult
-		fmt.Fprintf(w, "In progress, ID = %s", newRequest.ID)
-
+		fmt.Fprintf(w, "In progress. ID = %s", newRequest.ID)
 	}
 }
+
